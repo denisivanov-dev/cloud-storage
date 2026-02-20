@@ -1,0 +1,25 @@
+# Node
+node_modules
+dist
+build
+
+# Python
+__pycache__/
+*.pyc
+.env
+venv/
+
+# Go
+bin/
+vendor/
+
+# Docker
+*.log
+
+# IDE
+.vscode
+.idea
+
+# OS
+.DS_Store
+Thumbs.db
