@@ -1,8 +1,8 @@
-from app.db.base import Base
+from app.db.base_class import Base
 
 from datetime import datetime
 
-from sqlalchemy import String, Boolean, DateTime
+from sqlalchemy import String, Boolean, DateTime, UniqueConstraint
 from sqlalchemy import func, text
 
 from sqlalchemy.orm import Mapped
@@ -12,19 +12,27 @@ from sqlalchemy.orm import mapped_column
 class User(Base):
     __tablename__ = "users"
 
+    __table_args__ = (
+        UniqueConstraint("username", name="uq_users_username"),
+        UniqueConstraint("email", name="uq_users_email"),
+        UniqueConstraint("google_id", name="uq_users_google_id"),
+    )
+
     id: Mapped[int] = mapped_column(primary_key=True)
     
 
     username: Mapped[str] = mapped_column(
-        String(30), index=True, 
-        nullable=False, unique=True
+        String(30), index=True, nullable=False
     )
+
     email: Mapped[str] = mapped_column(
-        String(320), index=True, 
-        nullable=False, unique=True
+        String(320), index=True, nullable=False
     )
-    hashed_password: Mapped[str] = mapped_column(
-        String(255), nullable=False
+    hashed_password: Mapped[str | None] = mapped_column(
+        String(255), nullable=True
+    )
+    google_id: Mapped[str | None] = mapped_column(
+        String(255), nullable=True, index=True
     )
 
 

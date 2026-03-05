@@ -1,4 +1,4 @@
-from sqlalchemy.orm import DeclarativeBase
+from app.db.base_class import Base
 
-class Base(DeclarativeBase):
-    pass
+from app.db.models.user import User
+from app.db.models.refresh_token import RefreshToken

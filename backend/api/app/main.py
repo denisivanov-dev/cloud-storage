@@ -15,12 +15,38 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+from fastapi import Request, status
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    errors = {}
+
+    for err in exc.errors():
+        field = err["loc"][1]
+
+        message = err.get("ctx", {}).get("reason")
+
+        if not message:
+            message = err["msg"]
+
+        errors[field] = message
+
+    return JSONResponse(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        content={"detail": errors},
+    )
+
+
 from app.api.routes import auth, users, folders, files
 
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(users.router, prefix="/users", tags=["users"])
 app.include_router(folders.router, prefix="/folders", tags=["folders"])
 app.include_router(files.router, prefix="/files", tags=["files"])
+
 
 print("PYTHON:", sys.executable)
 print("FILE:", __file__)

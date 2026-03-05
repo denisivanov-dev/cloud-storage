@@ -2,17 +2,6 @@ import re
 from typing import Optional
 
 
-def validate_email(email: str) -> Optional[str]:
-    if not email:
-        return "Email is required"
-
-    email_regex = r"^[^\s@]+@[^\s@]+\.[^\s@]+$"
-    if not re.match(email_regex, email):
-        return "Invalid email format"
-
-    return None
-
-
 def validate_username(username: str) -> Optional[str]:
     if not username:
         return "Nickname is required"

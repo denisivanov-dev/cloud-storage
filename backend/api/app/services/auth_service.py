@@ -1,64 +1,124 @@
+from datetime import datetime, timezone
+
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import HTTPException, status
+from sqlalchemy.exc import IntegrityError
 
 from app.schemas import auth
-from app.db.models.user import User
-from app.core.security import hash_password
+from app.core import security
 from app.core.validators.auth_validators import (
-    validate_email,
     validate_username,
     validate_password
 )
-
+from app.core.errors.db_errors import handle_user_integrity_error
+from app.core.errors.auth_errors import ValidationError, InvalidCredentialsError
 from app.repository.user_repository import UserRepository
+from app.repository.refresh_token_repository import RefreshTokenRepository
 
 
-async def register_user(
-    data: auth.RegisterRequest,
-    db: AsyncSession,
-):
-    email_error = validate_email(data.email)
-    username_error = validate_username(data.username)
-    password_error = validate_password(data.password)
+async def _store_refresh_token(refresh_token: str, db: AsyncSession):
+    payload = security.decode_token(refresh_token)
 
-    if email_error or username_error or password_error:
-        errors = {}
+    now = datetime.now(timezone.utc)
 
-        if email_error:
-            errors["email"] = email_error
+    jti = payload["jti"]
+    user_id = int(payload["sub"])
+    expires_at = datetime.fromtimestamp(payload["exp"], tz=timezone.utc)
 
-        if username_error:
-            errors["password"] = username_error
-
-        if password_error:
-            errors["password"] = password_error
-
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=errors,
-        )
-    
-
-    existing_user = await UserRepository.get_by_email(db, data.email)
-    if existing_user is not None:
-        raise HTTPException(
-            status_code=400,
-            detail="User already exists",
-        )
-    
-    hashed_password = hash_password(data.password)
-    
-    await UserRepository.create_user(
-        db, email=data.email,
-        username=data.username, hashed_password=hashed_password,
+    await RefreshTokenRepository.insert_token(
+        db, jti=jti,
+        user_id=user_id, expires_at=expires_at,
+        last_used_at=now,
     )
 
-    return {"message": "User created successfully"}
 
+async def login_user(data: auth.LoginRequest, db: AsyncSession):
+    email = data.email.strip().lower()
     
+    if not data.password:
+        raise ValidationError({"password": "Password is required"})
 
+
+    user = await UserRepository.get_by_email(db, email)
+
+    if not user:
+        raise InvalidCredentialsError({"email": "User does not exist"})
+
+    if not security.verify_password(data.password, user.hashed_password):
+        raise InvalidCredentialsError({"password": "Invalid password"})
+
+
+    access_token = security.create_access_token(user.id)
+    refresh_token = security.create_refresh_token(user.id)
+
+    await _store_refresh_token(refresh_token, db)
+
+    return access_token, refresh_token
+
+
+async def register_user(data: auth.RegisterRequest, db: AsyncSession):
+    email = data.email.strip().lower()
+    username = data.username.strip().lower()
+
+    username_error = validate_username(username)
+    password_error = validate_password(data.password)
+
+    if username_error or password_error:
+        errors = {}
+        if username_error:
+            errors["username"] = username_error
+        if password_error:
+            errors["password"] = password_error
+        raise ValidationError(errors)
+
+
+    if await UserRepository.get_by_email(db, email):
+        raise ValidationError({"email": "Email already registered"})
+
+    if await UserRepository.get_by_username(db, username):
+        raise ValidationError({"username": "Username already taken"})
+
+
+    hashed_password = security.hash_password(data.password)
+
+    try:
+        user = await UserRepository.create_user(
+            db, email=email,
+            username=username, hashed_password=hashed_password,
+        )
+    except IntegrityError as e:
+        await handle_user_integrity_error(e, db)
+
+
+    access_token = security.create_access_token(user.id)
+    refresh_token = security.create_refresh_token(user.id)
+
+    await _store_refresh_token(refresh_token, db)
+
+    return access_token, refresh_token
+
+
+async def refresh_access_token(refresh_token: str, db: AsyncSession):
+    payload = security.decode_token(refresh_token)
+
+    jti = payload["jti"]
+    user_id = int(payload["sub"])
+
+    db_token = await RefreshTokenRepository.get_by_jti(db, jti)
+
+    if not db_token:
+        raise InvalidCredentialsError({"refresh": "Invalid refresh token"})
     
+    now = datetime.now(timezone.utc)
+
+    if db_token.expires_at < now:
+        raise InvalidCredentialsError({"refresh": "Refresh token expired"})
+
+    if db_token.revoked:
+        raise InvalidCredentialsError({"refresh": "Refresh token revoked"})
+
+    await RefreshTokenRepository.update_last_used(db, jti, now)
 
 
+    new_access = security.create_access_token(user_id)
 
-
+    return new_access

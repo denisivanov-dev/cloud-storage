@@ -21,9 +21,18 @@ export default function RegisterPage() {
 
   const mutation = useMutation({
     mutationFn: register,
+
     onSuccess: () => {
       navigate("/login");
     },
+
+    onError: (error: any) => {
+      const errors = error.response?.data?.detail;
+
+      if (errors && typeof errors === "object") {
+        setErrors(errors);
+      }
+    }
   });
 
   const handleSubmit = () => {
@@ -56,7 +65,7 @@ export default function RegisterPage() {
               Join Cloud Storage
             </h1>
             <p className="text-lg text-blue-100 max-w-md">
-              Create your account and start storing your files securely.
+              Create your account and start storing your files.
             </p>
           </div>
           <p className="text-sm text-blue-200">
