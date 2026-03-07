@@ -32,6 +32,18 @@ class UserRepository:
 
 
     @staticmethod
+    async def get_by_id(
+        db: AsyncSession, user_id: int
+    ) -> Optional[User]:
+        
+        result = await db.execute(
+            select(User).where(User.id == user_id)
+        )
+
+        return result.scalars().first()
+
+
+    @staticmethod
     async def create_user(
         db: AsyncSession, *, username: str,
         email: str, hashed_password: str,

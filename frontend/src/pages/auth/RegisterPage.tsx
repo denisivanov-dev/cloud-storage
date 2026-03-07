@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
-import { register } from "@/features/auth/api";
+import { Link } from "react-router-dom";
 import { validateRegister } from "@/features/auth/validation";
+import { useRegister } from "@/features/auth/hooks";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
@@ -17,23 +16,7 @@ export default function RegisterPage() {
     confirmPassword?: string;
   }>({});
 
-  const navigate = useNavigate();
-
-  const mutation = useMutation({
-    mutationFn: register,
-
-    onSuccess: () => {
-      navigate("/login");
-    },
-
-    onError: (error: any) => {
-      const errors = error.response?.data?.detail;
-
-      if (errors && typeof errors === "object") {
-        setErrors(errors);
-      }
-    }
-  });
+  const mutation = useRegister();
 
   const handleSubmit = () => {
     const validationErrors = validateRegister({
@@ -47,7 +30,18 @@ export default function RegisterPage() {
 
     if (Object.keys(validationErrors).length > 0) return;
 
-    mutation.mutate({ email, username, password });
+    mutation.mutate(
+      { email, username, password },
+      {
+        onError: (error: any) => {
+          const errors = error.response?.data?.detail;
+
+          if (errors && typeof errors === "object") {
+            setErrors(errors);
+          }
+        }
+      }
+    );
   };
 
   return (
@@ -62,14 +56,14 @@ export default function RegisterPage() {
         <div className="hidden lg:flex w-1/2 bg-gradient-to-br from-blue-700 via-indigo-700 to-blue-900 text-white p-14 flex-col justify-between relative overflow-hidden">
           <div>
             <h1 className="text-4xl font-bold mb-6">
-              Join Cloud Storage
+              Join CloudStore
             </h1>
             <p className="text-lg text-blue-100 max-w-md">
               Create your account and start storing your files.
             </p>
           </div>
           <p className="text-sm text-blue-200">
-            © 2026 Cloud Storage.
+            © 2026 CloudStore.
           </p>
         </div>
 

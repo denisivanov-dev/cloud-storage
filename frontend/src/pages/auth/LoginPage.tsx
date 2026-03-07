@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
-import { login } from "@/features/auth/api";
+import { Link } from "react-router-dom";
 import { validateLogin } from "@/features/auth/validation";
+import { useLogin } from "@/features/auth/hooks";
+import { Logo } from "@/shared/ui/Logo"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -14,23 +14,7 @@ export default function LoginPage() {
     credentials?: string;
   }>({});
 
-  const navigate = useNavigate();
-
-  const mutation = useMutation({
-    mutationFn: login,
-
-    onSuccess: () => {
-      navigate("/");
-    },
-
-    onError: (error: any) => {
-      const errors = error.response?.data?.detail;
-
-      if (errors && typeof errors === "object") {
-        setErrors(errors);
-      }
-    },
-  });
+  const mutation = useLogin();
 
   const handleSubmit = () => {
     const validationErrors = validateLogin({ email, password });
@@ -39,7 +23,18 @@ export default function LoginPage() {
 
     if (Object.keys(validationErrors).length > 0) return;
 
-    mutation.mutate({ email, password });
+    mutation.mutate(
+      { email, password },
+      {
+        onError: (error: any) => {
+          const errors = error.response?.data?.detail;
+
+          if (errors && typeof errors === "object") {
+            setErrors(errors);
+          }
+        },
+      }
+    );
   };
 
   return (
@@ -62,24 +57,12 @@ export default function LoginPage() {
         <div className="hidden lg:flex w-1/2 bg-gradient-to-br from-blue-700 via-indigo-700 to-blue-900 text-white p-14 flex-col justify-between relative overflow-hidden">
 
           <div>
-            <div className="mb-6">
-              <svg
-                className="w-14 h-14"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3 15a4 4 0 014-4h1a5 5 0 019.584 1.828A3.5 3.5 0 0118.5 19H7a4 4 0 01-4-4z"
-                />
-              </svg>
+            <div className="mb-3">
+              <Logo size={56} variant="transparent" />
             </div>
 
             <h1 className="text-4xl font-bold leading-tight mb-6">
-              Cloud Storage
+              CloudStore
             </h1>
 
             <p className="text-lg text-blue-100 max-w-md">
@@ -88,7 +71,7 @@ export default function LoginPage() {
           </div>
 
           <p className="text-sm text-blue-200">
-            © 2026 Cloud Storage.
+            © 2026 CloudStore.
           </p>
 
           <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
