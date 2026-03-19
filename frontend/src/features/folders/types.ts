@@ -21,3 +21,22 @@ export interface FolderPage {
   breadcrumb: FolderBreadcrumb[]
   folders: Folder[]
 }
+
+export interface RenameFolderDto {
+  id: number
+  name: string
+}
+
+export interface DeleteFolderDto {
+  id: number
+}
+
+export type MoveFolderDto = {
+  id: number
+  parent_id: number
+}
+
+export type MoveFoldersDto = {
+  ids: number[]
+  parent_id: number
+}

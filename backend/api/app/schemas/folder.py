@@ -7,6 +7,19 @@ class FolderCreate(BaseModel):
     parent_id: int | None = None
 
 
+class FolderRename(BaseModel):
+    name: str
+
+
+class FolderMove(BaseModel):
+    parent_id: int | None
+
+
+class FolderMoveBulk(BaseModel):
+    ids: list[int]
+    parent_id: int
+
+
 class FolderOut(BaseModel):
     id: int
     name: str

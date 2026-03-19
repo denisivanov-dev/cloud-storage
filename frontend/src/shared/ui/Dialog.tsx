@@ -8,7 +8,7 @@ interface Props {
   onClose: () => void
 }
 
-export function Modal({ open, title, children, onClose }: Props) {
+export function Dialog({ open, title, children, onClose }: Props) {
 
   useEffect(() => {
     if (!open) return

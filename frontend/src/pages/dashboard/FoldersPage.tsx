@@ -22,7 +22,7 @@ export default function FoldersPage() {
   }
 
   return (
-    <div className="p-8">
+    <div className="p-8 h-full flex flex-col">
 
       <Breadcrumb crumbs={breadcrumb} />
 
@@ -30,13 +30,15 @@ export default function FoldersPage() {
         My files
       </h1>
 
-      {folders.length === 0 ? (
-        <div className="text-gray-500">
-          Empty folder
-        </div>
-      ) : (
-        <FolderList folders={folders} />
-      )}
+      <div className="flex-1 overflow-auto">
+        {folders.length === 0 ? (
+          <div className="text-gray-500">
+            Empty folder
+          </div>
+        ) : (
+          <FolderList folders={folders} />
+        )}
+      </div>
 
     </div>
   )

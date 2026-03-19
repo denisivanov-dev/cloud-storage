@@ -44,13 +44,14 @@ class Folder(Base):
     
     __table_args__ = (
         UniqueConstraint(
-            "owner_id", "parent_id",
-            "name", name="uq_folder_owner_parent_name"
+            "owner_id", "parent_id", "name",
+            name="uq_folder_owner_parent_name",
         ),
 
         Index(
-            "uq_root_folder_owner_name", "owner_id",
-            "name", unique=True,
-            postgresql_where=(parent_id.is_(None))
+            "uq_root_folder_owner_name",
+            "owner_id", "name",
+            unique=True,
+            postgresql_where=parent_id.is_(None),
         ),
     )

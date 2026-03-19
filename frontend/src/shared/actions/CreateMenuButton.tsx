@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react"
 import { Plus, Folder, Upload, FileUp } from "lucide-react"
-import { Modal } from "@/shared/components/Modal"
+import { Dialog } from "@/shared/ui/Dialog"
 import { useCreateFolder } from "@/features/folders/hooks"
 import { useParams } from "react-router-dom"
 
@@ -134,8 +134,8 @@ export function CreateMenuButton() {
 
       </div>
 
-      {/* MODAL */}
-      <Modal
+      {/* DIALOG */}
+      <Dialog
         open={modal !== null}
         title="New Folder"
         onClose={() => setModal(null)}
@@ -182,7 +182,7 @@ export function CreateMenuButton() {
             Create
           </button>
         </div>
-      </Modal>
+      </Dialog>
 
     </div>
   )

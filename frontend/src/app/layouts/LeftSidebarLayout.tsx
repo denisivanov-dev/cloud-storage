@@ -2,11 +2,11 @@ import { Home, Folder } from "lucide-react"
 import { Outlet, Link } from "react-router-dom"
 
 import { Logo } from "@/shared/ui/Logo"
-import { CreateMenuButton } from "@/shared/components/CreateMenuButton"
+import { CreateMenuButton } from "@/shared/actions/CreateMenuButton"
 
 export default function LeftSidebarLayout() {
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 select-none">
 
       {/* SIDEBAR */}
       <aside
@@ -66,6 +66,7 @@ export default function LeftSidebarLayout() {
               text-sm font-medium
               text-blue-600
               bg-blue-50
+              select-none
             "
           >
             <Home size={18} />
@@ -81,6 +82,7 @@ export default function LeftSidebarLayout() {
               text-sm font-medium
               text-gray-700
               hover:bg-gray-100
+              select-none
             "
           >
             <Folder size={18} />

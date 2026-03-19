@@ -1,5 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { getFolders, createFolder } from "./api"
+import { 
+  getFolders, createFolder, 
+  renameFolder, deleteFolder,
+  moveFolder, moveFolders
+} from "./api"
 
 export const useFolders = (parentId?: number) => {
   return useQuery({
@@ -17,5 +21,53 @@ export function useCreateFolder() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["folders"] })
     }
+  })
+}
+
+export function useRenameFolder() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: renameFolder,
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["folders"] })
+    }
+  })
+}
+
+export function useDeleteFolder() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: deleteFolder,
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["folders"] })
+    }
+  })
+}
+
+export function useMoveFolder() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: moveFolder,
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["folders"] })
+    }
+  })
+}
+
+export function useMoveFolders() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: moveFolders,
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["folders"] })
+    },
   })
 }

@@ -48,7 +48,6 @@ async def refresh(
     db: AsyncSession = Depends(get_db),
 ):
     refresh_token = request.cookies.get("refresh_token")
-
     if not refresh_token:
         raise HTTPException(status_code=401, detail="Refresh token missing")
 

@@ -37,7 +37,6 @@ async def login_user(data: auth.LoginRequest, db: AsyncSession):
     if not data.password:
         raise ValidationError({"password": "Password is required"})
 
-
     user = await UserRepository.get_by_email(db, email)
 
     if not user:
@@ -45,7 +44,6 @@ async def login_user(data: auth.LoginRequest, db: AsyncSession):
 
     if not security.verify_password(data.password, user.hashed_password):
         raise InvalidCredentialsError({"password": "Invalid password"})
-
 
     access_token = security.create_access_token(user.id)
     refresh_token = security.create_refresh_token(user.id)
@@ -70,13 +68,11 @@ async def register_user(data: auth.RegisterRequest, db: AsyncSession):
             errors["password"] = password_error
         raise ValidationError(errors)
 
-
     if await UserRepository.get_by_email(db, email):
         raise ValidationError({"email": "Email already registered"})
 
     if await UserRepository.get_by_username(db, username):
         raise ValidationError({"username": "Username already taken"})
-
 
     hashed_password = security.hash_password(data.password)
 
@@ -87,7 +83,6 @@ async def register_user(data: auth.RegisterRequest, db: AsyncSession):
         )
     except IntegrityError as e:
         await handle_user_integrity_error(e, db)
-
 
     access_token = security.create_access_token(user.id)
     refresh_token = security.create_refresh_token(user.id)
@@ -117,7 +112,6 @@ async def refresh_access_token(refresh_token: str, db: AsyncSession):
         raise InvalidCredentialsError({"refresh": "Refresh token revoked"})
 
     await RefreshTokenRepository.update_last_used(db, jti, now)
-
 
     new_access = security.create_access_token(user_id)
 
