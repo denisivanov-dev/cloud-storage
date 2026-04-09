@@ -21,6 +21,33 @@ services:
     ports:
       - "6379:6379"
 
+  minio:
+    image: minio/minio
+    container_name: cloud_minio
+    restart: always
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    ports:
+      - "9000:9000"   # API
+      - "9001:9001"   # Web UI
+    volumes:
+      - minio_data:/data
+
+  minio_init:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      sleep 3;
+      mc alias set local http://minio:9000 minio minio123;
+      mc mb local/files || true;
+      mc policy set public local/files;
+      exit 0;
+      "
+
   api:
     build: ./backend/api
     container_name: cloud_api
@@ -30,8 +57,24 @@ services:
       - redis
     environment:
       DATABASE_URL: postgresql+psycopg://postgres:postgres@postgres:5432/cloud
+      REDIS_URL: redis://redis:6379
     ports:
       - "8000:8000"
 
+  go_service:
+    build: ./backend/storage
+    container_name: cloud_go
+    restart: always
+    depends_on:
+      - minio
+    environment:
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+      MINIO_BUCKET: files
+    ports:
+      - "8080:8080"
+
 volumes:
   postgres_data:
+  minio_data:

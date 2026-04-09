@@ -1,16 +1,18 @@
 import { useParams } from "react-router-dom"
-import { FolderList } from "@/features/folders/components/FolderList"
-import { useFolders } from "@/features/folders/hooks"
+import { ItemList } from "@/features/items/components/ItemList"
+import { useItems } from "@/features/items/hooks"
 import { Breadcrumb } from "@/features/folders/components/Breadcrumb"
+import { PreviewModal } from "@/features/files/components/PreviewModal"
 
 export default function FoldersPage() {
   const { id } = useParams()
 
   const parentId = id ? Number(id) : undefined
 
-  const { data, isLoading, isError } = useFolders(parentId)
+  const { data, isLoading, isError } = useItems(parentId)
 
   const folders = data?.folders ?? []
+  const files = data?.files ?? []
   const breadcrumb = data?.breadcrumb ?? []
 
   if (isLoading) {
@@ -31,15 +33,17 @@ export default function FoldersPage() {
       </h1>
 
       <div className="flex-1 overflow-auto">
-        {folders.length === 0 ? (
+        {folders.length === 0 && files.length === 0 ? (
           <div className="text-gray-500">
             Empty folder
           </div>
         ) : (
-          <FolderList folders={folders} />
+          <ItemList folders={folders} files={files} />
         )}
       </div>
 
+      <PreviewModal />
+        
     </div>
   )
 }

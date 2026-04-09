@@ -19,7 +19,7 @@ export function useCreateFolder() {
     mutationFn: createFolder,
 
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["folders"] })
+      queryClient.invalidateQueries({ queryKey: ["items"] })
     }
   })
 }
@@ -31,7 +31,7 @@ export function useRenameFolder() {
     mutationFn: renameFolder,
 
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["folders"] })
+      queryClient.invalidateQueries({ queryKey: ["items"] })
     }
   })
 }
@@ -43,7 +43,7 @@ export function useDeleteFolder() {
     mutationFn: deleteFolder,
 
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["folders"] })
+      queryClient.invalidateQueries({ queryKey: ["items"] })
     }
   })
 }
@@ -55,7 +55,7 @@ export function useMoveFolder() {
     mutationFn: moveFolder,
 
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["folders"] })
+      queryClient.invalidateQueries({ queryKey: ["items"] })
     }
   })
 }
@@ -67,7 +67,7 @@ export function useMoveFolders() {
     mutationFn: moveFolders,
 
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["folders"] })
+      queryClient.invalidateQueries({ queryKey: ["items"] })
     },
   })
 }

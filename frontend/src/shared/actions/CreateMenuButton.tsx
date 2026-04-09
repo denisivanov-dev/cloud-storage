@@ -3,6 +3,7 @@ import { Plus, Folder, Upload, FileUp } from "lucide-react"
 import { Dialog } from "@/shared/ui/Dialog"
 import { useCreateFolder } from "@/features/folders/hooks"
 import { useParams } from "react-router-dom"
+import { useUploadFile } from "@/features/files/hooks"
 
 export function CreateMenuButton() {
   const [open, setOpen] = useState(false)
@@ -15,6 +16,7 @@ export function CreateMenuButton() {
   const inputRef = useRef<HTMLInputElement>(null)
 
   const createFolder = useCreateFolder()
+  const uploadFileMutation = useUploadFile()
   const { id } = useParams()
 
   useEffect(() => {
@@ -38,6 +40,7 @@ export function CreateMenuButton() {
 
   const handleUploadFile = () => {
     fileInputRef.current?.click()
+    setOpen(false)
   }
 
   const handleUploadFolder = () => {
@@ -63,11 +66,28 @@ export function CreateMenuButton() {
     setModal(null)
   }
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    uploadFileMutation.mutate({
+      file,
+      folder_id: id ? Number(id) : null,
+    })
+
+    e.target.value = ""
+  }
+
   return (
     <div className="relative" ref={ref}>
 
       {/* HIDDEN INPUTS */}
-      <input type="file" ref={fileInputRef} hidden />
+      <input
+        type="file"
+        ref={fileInputRef}
+        className="hidden"
+        onChange={handleFileChange}
+      />
 
       <input
         type="file"

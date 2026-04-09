@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from "react"
 import type { SelectionBox } from "./types"
 
 type Params = {
-  setSelected: (ids: number[]) => void
+  setSelected: (ids: string[]) => void
   clear: () => void
   containerRef: React.RefObject<HTMLElement | null>
 }
@@ -21,7 +21,7 @@ export function useSelectionBox({
     if (e.button !== 0) return
 
     const target = e.target as HTMLElement
-    if (target.closest("[data-folder-id]")) return
+    if (target.closest("[data-item-id]")) return
 
     const container = containerRef.current
     if (!container) return
@@ -78,10 +78,13 @@ export function useSelectionBox({
         bottom: Math.max(newBox.y, newBox.y + newBox.height),
       }
 
-      const elements = container.querySelectorAll("[data-folder-id]")
-      const selected: number[] = []
+      const elements = container.querySelectorAll("[data-item-id]")
+      const selected: string[] = []
 
       elements.forEach((el) => {
+        const id = el.getAttribute("data-item-id")
+        if (!id) return
+
         const elRect = el.getBoundingClientRect()
 
         const relative = {
@@ -98,7 +101,7 @@ export function useSelectionBox({
           relative.top < box.bottom
 
         if (isInside) {
-          selected.push(Number(el.getAttribute("data-folder-id")))
+          selected.push(id)
         }
       })
 

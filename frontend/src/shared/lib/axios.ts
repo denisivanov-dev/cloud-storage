@@ -15,3 +15,17 @@ api.interceptors.request.use((config) => {
 
   return config;
 });
+
+export const goApi = axios.create({
+  baseURL: "http://localhost:8081",
+})
+
+goApi.interceptors.request.use((config) => {
+  const token = useAuthStore.getState().accessToken
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+
+  return config
+})

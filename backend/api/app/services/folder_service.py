@@ -53,7 +53,7 @@ async def rename_folder(
     )
 
     if not folder:
-        raise FolderNotFoundError
+        raise FolderNotFoundError()
 
     if folder.name == name:
         return folder
@@ -103,7 +103,7 @@ async def move_folder(
         raise FolderNotFoundError()
 
     if parent_id == folder_id:
-        raise ValueError("Cannot move folder into itself")
+        raise CannotMoveFolderIntoItselfError()
 
     if parent_id is not None:
         parent = await FolderRepository.get_folder_by_id(

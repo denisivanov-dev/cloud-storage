@@ -47,8 +47,7 @@ class FolderRepository:
     ) -> Folder:
 
         folder = Folder(
-            name=name,
-            parent_id=parent_id,
+            name=name, parent_id=parent_id,
             owner_id=owner_id,
         )
 

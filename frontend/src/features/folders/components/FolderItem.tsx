@@ -5,7 +5,7 @@ import type { Folder as FolderType } from "../types"
 import { useDraggable, useDroppable } from "@dnd-kit/core"
 
 import { FolderClickMenu } from "./FolderClickMenu"
-import { useFolderSelectionStore } from "../store"
+import { useItemSelectionStore } from "@/features/items/store"
 
 interface Props {
   folder: FolderType
@@ -22,10 +22,12 @@ export function FolderItem({
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
-  const { selectedIds, toggle, setSelected } = useFolderSelectionStore()
-  const isSelected = selectedIds.includes(folder.id)
+  const itemId = `folder-${folder.id}`
 
-  const isGroupItem = isGroupDragging && selectedIds.includes(folder.id)
+  const { selectedIds, toggle, setSelected } = useItemSelectionStore()
+  const isSelected = selectedIds.includes(itemId)
+
+  const isGroupItem = isGroupDragging && selectedIds.includes(itemId)
 
   const {
     attributes,
@@ -33,12 +35,12 @@ export function FolderItem({
     setNodeRef: setDragRef,
     isDragging,
   } = useDraggable({
-    id: folder.id,
+    id: itemId,
     disabled: isSelecting || (isGroupDragging && !isSelected),
   })
 
   const { setNodeRef: setDropRef, isOver } = useDroppable({
-    id: folder.id,
+    id: itemId,
   })
 
   const setRefs = (node: HTMLDivElement | null) => {
@@ -51,14 +53,14 @@ export function FolderItem({
     if (isDragging || isSelecting || isGroupDragging) return
 
     if (e.ctrlKey || e.metaKey) {
-      toggle(folder.id)
+      toggle(itemId)
       return
     }
 
     if (isSelected) {
       setSelected([])
     } else {
-      setSelected([folder.id])
+      setSelected([itemId])
     }
   }
 
@@ -86,7 +88,7 @@ export function FolderItem({
   }, [])
 
   return (
-    <div ref={setRefs} className="relative" data-folder-id={folder.id}>
+    <div ref={setRefs} className="relative" data-item-id={itemId}>
       <div
         {...listeners}
         {...attributes}

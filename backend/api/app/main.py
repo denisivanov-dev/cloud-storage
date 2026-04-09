@@ -40,12 +40,13 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     )
 
 
-from app.api.routes import auth, users, folders
+from app.api.routes import auth, users, folders, files, items
 
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(users.router, prefix="/users", tags=["users"])
 app.include_router(folders.router, prefix="/folders", tags=["folders"])
-
+app.include_router(files.router, prefix="/files", tags=["files"])
+app.include_router(items.router, prefix="/items", tags=["items"])
 
 
 print("PYTHON:", sys.executable)
